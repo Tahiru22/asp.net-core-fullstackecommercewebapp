@@ -1,0 +1,150 @@
+﻿@model fullstackecommercewebapp.ViewModels.MyAccountViewModel
+
+@{
+    ViewData["Title"] = "Edit My Account";
+}
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>User Orders</title>
+    <link rel="stylesheet" href="~/css/CRUD.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/animate.css">
+
+    <link rel="stylesheet" href="~/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="~/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="~/css/magnific-popup.css">
+    <link rel="stylesheet" href="~/css/aos.css">
+
+    <link rel="stylesheet" href="~/css/ionicons.min.css">
+
+    <link rel="stylesheet" href="~/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="~/css/jquery.timepicker.css">
+
+
+    <link rel="stylesheet" href="~/css/flaticon.css">
+    <link rel="stylesheet" href="~/css/icomoon.css">
+    <link rel="stylesheet" href="~/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="~/js/sweetalert2.js"></script>
+    <style>
+        .validation-summary-errors ul {
+            list-style: none;
+        }
+    </style>
+</head>
+
+
+
+<body>
+
+    <div class="hero-wrap hero-bread" style="background-color: #dbcc8f; height:20px">
+        <div class="container">
+            <div class="row no-gutters slider-text align-items-center justify-content-center">
+                <div class="col-md-9 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="index.html">Home</a></span> <span>User</span></p>
+                    <h1 class="mb-0 bread">Edit My Information</h1>
+                    <div asp-validation-summary="All" class="text-danger"> </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <section class="ftco-section bg-light">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-10 ftco-animate">
+                    <form asp-action="EditMyAccount" method="post" enctype="multipart/form-data" id="form" class="bg-white p-5">
+                        <div>
+                            <div class="form-group">
+                                @Html.DisplayNameFor(model => model.FirstName)
+                                <input class="form-control" value="@Model.FirstName" asp-for="FirstName" /> <span asp-validation-for="FirstName" class="text-danger"> </span>
+                            </div>
+                            <div class="form-group">
+                                @Html.DisplayNameFor(model => model.LastName)
+                                <input class="form-control" value="@Model.LastName" asp-for="LastName" /> <span asp-validation-for="LastName" class="text-danger"> </span>
+                            </div>
+                            @Html.DisplayNameFor(model => model.Gendre)
+                            <div style="padding-left: 20px" class="form-group">
+                                @{
+                                    if (Model.Gendre == "m")
+                                    {
+                                        <input type="radio" checked asp-for="Gendre" value="m" class="form-check-input" /> <span> Male </span> <br />
+                                        <input type="radio" asp-for="Gendre" value="f" class="form-check-input" /> <span> Female </span> <br />
+                                        <input type="radio" asp-for="Gendre" value="n" class="form-check-input" /> <span> Not Specified </span> <br />
+                                    }
+                                    else if (Model.Gendre == "f")
+                                    {
+                                        <input type="radio" asp-for="Gendre" value="m" class="form-check-input" /> <span> Male </span> <br />
+                                        <input type="radio" checked asp-for="Gendre" value="f" class="form-check-input" /> <span> Female </span> <br />
+                                        <input type="radio" asp-for="Gendre" value="n" class="form-check-input" /> <span> Not Specified </span> <br />
+                                    }
+                                    else
+                                    {
+                                        <input type="radio" asp-for="Gendre" value="m" class="form-check-input" /> <span> Male </span> <br />
+                                        <input type="radio" asp-for="Gendre" value="f" class="form-check-input" /> <span> Female </span> <br />
+                                        <input type="radio" checked asp-for="Gendre" value="n" class="form-check-input" /> <span> Not Specified </span> <br />
+                                    }
+                                }
+                            </div>
+                            <span asp-validation-for="Gendre" class="text-danger"> </span>
+                        </div>
+                        <div>
+                            @Html.DisplayNameFor(model => model.Image)
+                            <input asp-for="Image" type="file" accept="image/*" /> <span asp-validation-for="Image" class="text-danger"> </span>
+                        </div>
+                        <div class="form-group">
+                            @Html.DisplayNameFor(model => model.Address)
+                            <input class="form-control" value="@Model.Address" asp-for="Address" /> <span asp-validation-for="Address" class="text-danger"> </span>
+                        </div>
+                        <div class="form-group">
+                            @Html.DisplayNameFor(model => model.Phone)
+                            <input class="form-control" value="@Model.Phone" asp-for="Phone" /> <span asp-validation-for="Phone" class="text-danger"> </span>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary py-3 px-5"> Submit </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-1 order-md-last d-flex"> </div>
+        <div>
+        </div>
+    </section>
+
+
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/jquery-migrate-3.0.1.min.js"></script>
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/jquery.easing.1.3.js"></script>
+    <script src="~/js/jquery.waypoints.min.js"></script>
+    <script src="~/js/jquery.stellar.min.js"></script>
+    <script src="~/js/owl.carousel.min.js"></script>
+    <script src="~/js/jquery.magnific-popup.min.js"></script>
+    <script src="~/js/aos.js"></script>
+    <script src="~/js/jquery.animateNumber.min.js"></script>
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <script src="~/js/scrollax.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+    <script src="~/js/google-map.js"></script>
+    <script src="~/js/main.js"></script>
+
+</body>

@@ -1,0 +1,175 @@
+﻿@model fullstackecommercewebapp.ViewModels.CategoryViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+    int count = 0;
+    Dictionary<int, Boolean> d = new Dictionary<int, bool>();
+    if (Model.Attributes != null)
+    {
+        foreach (var item in Model.Attributes)
+        {
+            d[item.Id] = false;
+        }
+    }
+
+    if (Model.SelectedAttributes != null)
+    {
+        foreach (var item in Model.SelectedAttributes)
+        {
+            d[item] = true;
+        }
+    }
+
+}
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>User Orders</title>
+    <link rel="stylesheet" href="~/css/CRUD.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/animate.css">
+
+    <link rel="stylesheet" href="~/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="~/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="~/css/magnific-popup.css">
+    <link rel="stylesheet" href="~/css/aos.css">
+
+    <link rel="stylesheet" href="~/css/ionicons.min.css">
+
+    <link rel="stylesheet" href="~/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="~/css/jquery.timepicker.css">
+
+
+    <link rel="stylesheet" href="~/css/flaticon.css">
+    <link rel="stylesheet" href="~/css/icomoon.css">
+    <link rel="stylesheet" href="~/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="~/js/sweetalert2.js"></script>
+    <script>
+        var count = 0;
+        function add_attr() {
+            var form = document.getElementById('input0');
+            console.log('input' + count);
+            var id = " \"input" + (count + 1) + "\" ";
+            var name = "AddedAttributes[" + count + "].Name";
+            var x = "<input class='form-control' name=" + name + " type='text' id=" + id + " placeholder='Attribute Name' />"
+            console.log(x);
+            form.insertAdjacentHTML('beforeend', x);
+            form.insertAdjacentHTML('beforeend', "<br/>  <br/>");
+            console.log(count);
+            console.log("jkjhjkhjkh");
+            count = count + 1;
+            console.log(count);
+        }
+    </script>
+    <style>
+        .validation-summary-errors ul {
+            list-style: none;
+        }
+    </style>
+</head>
+
+
+
+<body>
+
+    <div class="hero-wrap hero-bread" style="background-color: #dbcc8f; height:20px">
+        <div class="container">
+            <div class="row no-gutters slider-text align-items-center justify-content-center">
+                <div class="col-md-9 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="index.html">Home</a></span> <span>Category</span></p>
+                    <h1 class="mb-0 bread">Edit Category</h1>
+                    <div asp-validation-summary="All" class="text-danger"> </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <section class="ftco-section contact-section bg-light">
+        <div style="margin:0 auto; width:60vw" class="container">
+            <form asp-action="Edit" method="post" id="form" class="bg-white p-5">
+                <input type="hidden" value=@ViewBag.id name="id" />
+                <div>
+                    <div class="form-group">
+                        @Html.DisplayNameFor(model => model.Name)
+                        <input class="form-control" value="@Model.Name" asp-for="Name" /> <span asp-validation-for="Name" class="text-danger"> </span>
+                    </div>
+                    <div class="form-group">
+                        @Html.DisplayNameFor(model => model.Description)
+                        <textarea class="form-control" value="@Model.Description" asp-for="Description"> </textarea> <span asp-validation-for="Description" class="text-danger"> </span>
+                    </div>
+
+                </div>
+                <div class="form-group" style="overflow: scroll; height: 100px;">
+
+                    @{
+                        foreach (var item in Model.Attributes)
+                        {
+                            <div class="form-check">
+                                @{
+                                    if (d[item.Id])
+                                    {
+                                        <input class="form-check-input" type="checkbox" name="SelectedAttributes" value="@item.Id" checked /> @item.Name
+                                    }
+                                    else
+                                    {
+                                        <input class="form-check-input" type="checkbox" name="SelectedAttributes" value="@item.Id" /> @item.Name
+                                    }
+                                }
+                            </div>
+                        }
+                    }
+
+                </div>
+
+                <div class="form-group">
+                    <input type="button" onclick="add_attr()" class="btn btn-primary py-3 px-5" value="Add Attribute">
+                </div>
+
+                <div id="input0" class="form-group">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary py-3 px-5"> Submit </button>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-1 order-md-last d-flex"> </div>
+        <div>
+        </div>
+    </section>
+
+
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/jquery-migrate-3.0.1.min.js"></script>
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/jquery.easing.1.3.js"></script>
+    <script src="~/js/jquery.waypoints.min.js"></script>
+    <script src="~/js/jquery.stellar.min.js"></script>
+    <script src="~/js/owl.carousel.min.js"></script>
+    <script src="~/js/jquery.magnific-popup.min.js"></script>
+    <script src="~/js/aos.js"></script>
+    <script src="~/js/jquery.animateNumber.min.js"></script>
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <script src="~/js/scrollax.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+    <script src="~/js/google-map.js"></script>
+    <script src="~/js/main.js"></script>
+
+</body>

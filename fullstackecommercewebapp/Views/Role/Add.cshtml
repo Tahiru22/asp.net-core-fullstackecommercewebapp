@@ -1,0 +1,23 @@
+﻿@model fullstackecommercewebapp.ViewModels.RoleViewModel
+
+
+@{
+    ViewData["Title"] = "Add";
+}
+
+<h1>Add a new Role</h1>
+
+<div asp-validation-summary="All" class="text-danger"> </div>
+<form asp-action="Add" method="post">
+    <div>
+        @Html.DisplayNameFor(model => model.Name)
+        <input asp-for="Name" /> <span asp-validation-for="Name" class="text-danger"> </span>
+
+        <button type="submit"> Submit </button>
+    </div>
+</form>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+

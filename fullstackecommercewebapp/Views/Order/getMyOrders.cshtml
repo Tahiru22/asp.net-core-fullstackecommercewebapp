@@ -1,0 +1,222 @@
+﻿@model PagedList.IPagedList<fullstackecommercewebapp.Models.Order>
+@using PagedList.Mvc;
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<script src="~/js/sweetalert2.js"></script>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>User Orders</title>
+    <link rel="stylesheet" href="~/css/CRUD.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/animate.css">
+
+    <link rel="stylesheet" href="~/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="~/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="~/css/magnific-popup.css">
+    <link rel="stylesheet" href="~/css/aos.css">
+
+    <link rel="stylesheet" href="~/css/ionicons.min.css">
+
+    <link rel="stylesheet" href="~/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="~/css/jquery.timepicker.css">
+
+
+    <link rel="stylesheet" href="~/css/flaticon.css">
+    <link rel="stylesheet" href="~/css/icomoon.css">
+    <link rel="stylesheet" href="~/css/style.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script>
+        function checkDelete(id) {
+            var link = '@Url.ActionLink("Delete","Order", new { id = "-1" })';
+            link = link.replace("-1", id);
+            Swal.fire({
+                title: 'Are you sure you want to delete this Order?',
+                text: "",
+                icon: 'warning',
+                showCancelButton: true,
+                timer: 3600000,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = link;
+                }
+            })
+        }
+    </script>
+    @{
+        if (ViewBag.msg == "added")
+        {
+            <script>
+                console.log(@ViewBag.OrderId)
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Number @ViewBag.OrderId',
+                    text: 'Your order is being processed, you can track it by its number',
+                    showConfirmButton: true,
+                })
+            </script>
+        }
+
+        if (ViewBag.msg == "deleted")
+        {
+            <script>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'This Order has been deleted successfully',
+                    showConfirmButton: false,
+                    timer: 2000
+                })
+            </script>
+        }
+        if (ViewBag.msg == "NoDelete")
+        {
+            <script>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'You Can Not Delete this Order. It has been Shipped or Delievered!',
+                    showConfirmButton: true
+                })
+            </script>
+        }
+    }
+</head>
+
+<body>
+    <div class="hero-wrap hero-bread" style="background-color: #dbcc8f; height:20px">
+        <div class="container">
+            <div class="row no-gutters slider-text align-items-center justify-content-center">
+                <div class="col-md-9 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="index.html">Home</a></span> <span>Order</span></p>
+                    <h1 class="mb-0 bread">My Orders</h1>
+                    <div asp-validation-summary="All" class="text-danger"> </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="ftco-section ftco-cart">
+        <div class="container">
+            <div class="row table-filter">
+                @using (Html.BeginForm("getMyOrders", "Order", FormMethod.Get))
+                {
+                    <div class="filter-group" style="width:50px;">
+                        <button type="submit" style="background-color:transparent; border:hidden; width:50px;"><i style="width:50px;" class="fa fa-search"></i> </button>
+                    </div>
+                    <div class="filter-group">
+                        <label>Order Number</label>
+                        @Html.TextBox("OrderSearchString", ViewBag.CurrentOrderFilter as string)
+                    </div>
+                    <span class="filter-icon"><i class="fa fa-filter"></i></span>
+                }
+            </div>
+            <div class="row">
+                <div class="col-md-12 ftco-animate">
+                    <div class="cart-list">
+                        <table class="table text-nowrap table-striped table-hover">
+                            <thead class="thead-primary">
+                                <tr class="text-center">
+                                    <th class="align-middle">
+                                        @Html.ActionLink("Order Number", "getMyOrders", new
+                                        {
+                                        sortOrder = ViewBag.DateSortParm,
+                                        CurrentOrderFilter = ViewBag.CurrentOrderFilter
+                                        },
+                                        new { title = "Sort By Number", style = "color:white" })
+                                    </th>
+                                    <th class="align-middle">
+                                        Status
+                                    </th>
+                                    <th class="align-middle">
+                                        Total
+                                    </th>
+                                    <th class="align-middle">
+                                        @Html.ActionLink("Order Date", "getMyOrders", new
+                                        {
+                                        sortOrder = ViewBag.DateSortParm,
+                                        CurrentOrderFilter = ViewBag.CurrentOrderFilter
+                                        },
+                                        new { title = "Sort By Order Date", style = "color:white" })
+                                    </th>
+                                    <th class="align-middle"> &nbsp; </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr class="text-center">
+                                        <td>
+                                            @Html.DisplayFor(modeItem => item.Id)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Status)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Total)
+                                        </td>
+                                        <td>
+                                            @Html.DisplayFor(modeItem => item.CreatedAt)
+                                        </td>
+                                        <td>
+                                            <a asp-action="MyOrderDetails" asp-route-id="@item.Id" class="view" title="View" data-toggle="tooltip"><i class="material-icons">&#xE417;</i></a>
+                                            <a onclick="checkDelete(@item.Id);" class="delete" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="clearfix row">
+                <div class="hint-text">Page <b>@Model.PageNumber</b> out of <b> @Model.PageCount</b> pages</div>
+
+                <ul class="pagination">
+                    <li class="page-item disabled"><a href="#"><i class="fa fa-angle-double-left"></i></a></li>
+                    @for (int i = 1; i <= Model.PageCount; i++)
+                    {
+                        <li class="@(i == Model.PageNumber ? "page-item active" : "page-item")">
+                            <a class="page-link" href="@Url.Action("getMyOrders", new { page = i,
+                                            sortOrder = ViewBag.CurrentSort,
+                                            CurrentOrderFilter = ViewBag.CurrentOrderFilter})">@i</a>
+                        </li>
+                    }
+                    <li class="page-item"><a href="#" class="page-link"><i class="fa fa-angle-double-right"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/jquery-migrate-3.0.1.min.js"></script>
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/jquery.easing.1.3.js"></script>
+    <script src="~/js/jquery.waypoints.min.js"></script>
+    <script src="~/js/jquery.stellar.min.js"></script>
+    <script src="~/js/owl.carousel.min.js"></script>
+    <script src="~/js/jquery.magnific-popup.min.js"></script>
+    <script src="~/js/aos.js"></script>
+    <script src="~/js/jquery.animateNumber.min.js"></script>
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <script src="~/js/scrollax.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+    <script src="~/js/google-map.js"></script>
+    <script src="~/js/main.js"></script>
+</body>

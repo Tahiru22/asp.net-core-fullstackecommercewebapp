@@ -1,0 +1,461 @@
+﻿@model fullstackecommercewebapp.ViewModels.CartViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Ecommerce </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/animate.css">
+
+    <link rel="stylesheet" href="~/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="~/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="~/css/magnific-popup.css">
+
+    <link rel="stylesheet" href="~/css/aos.css">
+
+    <link rel="stylesheet" href="~/css/ionicons.min.css">
+
+    <link rel="stylesheet" href="~/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="~/css/jquery.timepicker.css">
+
+
+    <link rel="stylesheet" href="~/css/flaticon.css">
+    <link rel="stylesheet" href="~/css/icomoon.css">
+    <link rel="stylesheet" href="~/css/style.css">
+    <script>
+        count = []
+    </script>
+    @{
+        foreach (var item in Model.cartItems)
+        {
+            <script>
+            if (count[@item.Product.Id] == null) {
+                count[@item.Product.Id] = @item.Quantity;
+            }
+            else {
+                 count[@item.Product.Id] += @item.Quantity;
+            }
+            </script>
+        }
+    }
+</head>
+
+<body class="goto-here">
+    <section id="home-section" class="hero">
+        <div class="home-slider owl-carousel">
+            <div class="slider-item js-fullheight">
+                <div class="overlay"></div>
+                <div class="container-fluid p-0">
+                    <div class="row d-md-flex no-gutters slider-text align-items-center justify-content-end" data-scrollax-parent="true">
+                        <img class="one-third order-md-last img-fluid" src="images/img3.png" alt="">
+                        <div class="one-forth d-flex align-items-center ftco-animate" data-scrollax=" properties: { translateY: '70%' }">
+                            <div class="text">
+                                <span class="subheading">#Some of our products</span>
+                                <div class="horizontal">
+                                    <h1 class="mb-4 mt-3">Trousers</h1>
+                                    <p class="mb-4">
+                                        Elegant Trousers with different colors and sizes.
+                                        <br />
+                                        Newest Fashion Trends with Reasonable Prices.
+                                    </p>
+
+                                    <p><a class="btn-custom" asp-controller="Shop" asp-action="Index">Shop Now</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slider-item js-fullheight">
+                <div class="overlay"></div>
+                <div class="container-fluid p-0">
+                    <div class="row d-flex no-gutters slider-text align-items-center justify-content-end" data-scrollax-parent="true">
+                        <img class="one-third order-md-last img-fluid" src="images/bg_3.png" alt="">
+                        <div class="one-forth d-flex align-items-center ftco-animate" data-scrollax=" properties: { translateY: '70%' }">
+                            <div class="text">
+                                <span class="subheading">#Some of our products</span>
+                                <div class="horizontal">
+                                    <h1 class="mb-4 mt-3">Jackets</h1>
+                                    <p class="mb-4">Elegant Jackets with different colors and sizes. Newest Fashion Trends with Reasonable Prices.</p>
+                                    <p><a asp-controller="Shop" asp-action="Index" class="btn-custom">Shop Now</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="slider-item js-fullheight">
+                <div class="overlay"></div>
+                <div class="container-fluid p-0">
+                    <div class="row d-flex no-gutters slider-text align-items-center justify-content-end" data-scrollax-parent="true">
+                        <img class="one-third order-md-last img-fluid" src="images/bg_2.png" alt="">
+                        <div class="one-forth d-flex align-items-center ftco-animate" data-scrollax=" properties: { translateY: '70%' }">
+                            <div class="text">
+                                <span class="subheading">#Some of our products</span>
+                                <div class="horizontal">
+                                    <h1 class="mb-4 mt-3">Shoes</h1>
+                                    <p class="mb-4">Elegant Shoes with different colors and sizes. Newest Fashion Trends with Reasonable Prices.</p>
+                                    <p><a asp-controller="Shop" asp-action="Index" class="btn-custom">Shop Now</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ftco-section ftco-no-pt ftco-no-pb">
+        <div class="container">
+            <div class="row no-gutters ftco-services">
+                <div class="col-lg-4 text-center d-flex align-self-stretch ftco-animate">
+                    <div class="media block-6 services p-4 py-md-5">
+                        <div class="icon d-flex justify-content-center align-items-center mb-4">
+                            <span class="flaticon-bag"></span>
+                        </div>
+                        <div class="media-body">
+                            <h3 class="heading">Free Shipping</h3>
+                            <p>Fast delivery wherever you are, and no matter the size of your order.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center d-flex align-self-stretch ftco-animate">
+                    <div class="media block-6 services p-4 py-md-5">
+                        <div class="icon d-flex justify-content-center align-items-center mb-4">
+                            <span class="flaticon-customer-service"></span>
+                        </div>
+                        <div class="media-body">
+                            <h3 class="heading">Support Customer</h3>
+                            <p>All you need is available in our site and with reasonable prices.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-center d-flex align-self-stretch ftco-animate">
+                    <div class="media block-6 services p-4 py-md-5">
+                        <div class="icon d-flex justify-content-center align-items-center mb-4">
+                            <span class="flaticon-payment-security"></span>
+                        </div>
+                        <div class="media-body">
+                            <h3 class="heading">Secure Delivery</h3>
+                            <p>Our employees will make sure to deliver your order efficiently </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ftco-section bg-light">
+        <div class="container">
+            <div class="row justify-content-center mb-3 pb-3">
+                <div class="col-md-12 heading-section text-center ftco-animate">
+                    <h2 class="mb-4">Some of our products</h2>
+                    <p>Trousers, Jackets, Shoes and more! You can buy anything you want from our site.</p>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                @{
+                    int i = 0;
+                    foreach (var item in Model.products)
+                    {
+                        i++;
+                        if (i == 13) break;
+                        <div class="col-sm-12 col-md-6 col-lg-3 ftco-animate d-flex">
+                            <div class="product d-flex flex-column">
+                                <a asp-controller="Product" asp-action="Details" asp-route-id="@item.Id" class="img-prod">
+                                    <img class="img-fluid" src="images/@item.Image1" alt="Colorlib Template">
+                                    <div class="overlay"></div>
+                                </a>
+                                <div class="text py-3 pb-4 px-3">
+                                    <div class="d-flex">
+                                        <div class="cat">
+                                            <span>Details</span>
+                                        </div>
+                                        <div class="rating">
+                                            <p class="text-right mb-0">
+                                                <a asp-action="Details"  asp-controller="Product" asp-route-id="@item.Id"><i class="material-icons">&#xE417;</i> </a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <h3><a asp-action="Details"  asp-controller="Product" asp-route-id="@item.Id">@item.Name</a></h3>
+                                    <div class="pricing">
+                                        <p class="price"><span>@item.Price</span></p>
+                                    </div>
+                                    <p class="bottom-area d-flex px-3">
+                                        <a style="margin: 0 !important;" onclick="RemoveFromCart(@item.Id)" class="add-to-cart text-center py-2 mr-1"><i class="ion-ios-remove ml-1"></i></a>
+                                        <span style="width: 50%; padding: 8px; margin: 0 !important; background-color: white !important; color: black !important; text-align: center" id="@item.Id"> 0 </span>
+                                        <a style="margin: 0 !important;" onclick="AddToCart(@item.Id)" class="add-to-cart text-center py-2 mr-1"><i class="ion-ios-add ml-1"></i></a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="ftco-section testimony-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-5">
+                    <div class="services-flow">
+                        <div class="services-2 p-4 d-flex ftco-animate">
+                            <div class="icon">
+                                <span class="flaticon-bag"></span>
+                            </div>
+                            <div class="text">
+                                <h3>Free Shipping</h3>
+                                <p class="mb-0">Fast delivery wherever you are, and no matter the size of your order</p>
+                            </div>
+                        </div>
+                        <div class="services-2 p-4 d-flex ftco-animate">
+                            <div class="icon">
+                                <span class="flaticon-heart-box"></span>
+                            </div>
+                            <div class="text">
+                                <h3>Valuable Gifts</h3>
+                                <p class="mb-0">Many sales are offered each day in our site</p>
+                            </div>
+                        </div>
+                        <div class="services-2 p-4 d-flex ftco-animate">
+                            <div class="icon">
+                                <span class="flaticon-payment-security"></span>
+                            </div>
+                            <div class="text">
+                                <h3>Secure Delivery</h3>
+                                <p class="mb-0">Our employees will make sure to deliver your order efficiently</p>
+                            </div>
+                        </div>
+                        <div class="services-2 p-4 d-flex ftco-animate">
+                            <div class="icon">
+                                <span class="flaticon-customer-service"></span>
+                            </div>
+                            <div class="text">
+                                <h3>All Day Support</h3>
+                                <p class="mb-0">We provide our customers with the newest fashion trends with suitable prices</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <div class="heading-section ftco-animate mb-5">
+                        <h2 class="mb-4">What fashion designers say</h2>
+                        <p>Here are some of quotes said by the most popular fashion designers</p>
+                    </div>
+                    <div class="carousel-testimony owl-carousel">
+                        <div class="item">
+                            <div class="testimony-wrap">
+                                <div class="user-img mb-4" style="background-image: url(images/person_5.jpg)">
+                                    <span class="quote d-flex align-items-center justify-content-center">
+                                        <i class="icon-quote-left"></i>
+                                    </span>
+                                </div>
+                                <div class="text">
+                                    <p class="mb-4 pl-4 line">Style is a way to say who you are without having to speak.</p>
+                                    <p class="name">Rachel Zoe</p>
+                                    <span class="position">Fashion Designer</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="testimony-wrap">
+                                <div class="user-img mb-4" style="background-image: url(images/person_1.jpg)">
+                                    <span class="quote d-flex align-items-center justify-content-center">
+                                        <i class="icon-quote-left"></i>
+                                    </span>
+                                </div>
+                                <div class="text">
+                                    <p class="mb-4 pl-4 line">Good shoes take you to good places.</p>
+                                    <p class="name">Judette Wazqar</p>
+                                    <span class="position">Fashion Designer</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="testimony-wrap">
+                                <div class="user-img mb-4" style="background-image: url(images/person_2.jpg)">
+                                    <span class="quote d-flex align-items-center justify-content-center">
+                                        <i class="icon-quote-left"></i>
+                                    </span>
+                                </div>
+                                <div class="text">
+                                    <p class="mb-4 pl-4 line">Fashion is like eating; you shouldn't stick to the same menu.</p>
+                                    <p class="name">Kenzo Takada</p>
+                                    <span class="position">Fashion Designer</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="testimony-wrap">
+                                <div class="user-img mb-4" style="background-image: url(images/person_3.jpg)">
+                                    <span class="quote d-flex align-items-center justify-content-center">
+                                        <i class="icon-quote-left"></i>
+                                    </span>
+                                </div>
+                                <div class="text">
+                                    <p class="mb-4 pl-4 line">Care for your clothes like the good friends they are.</p>
+                                    <p class="name">Joan Crawford</p>
+                                    <span class="position">Fashion Designer</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <div class="testimony-wrap">
+                                <div class="user-img mb-4" style="background-image: url(images/person_4.jpg)">
+                                    <span class="quote d-flex align-items-center justify-content-center">
+                                        <i class="icon-quote-left"></i>
+                                    </span>
+                                </div>
+                                <div class="text">
+                                    <p class="mb-4 pl-4 line">I like my money right where I can see it... hanging in my closet.</p>
+                                    <p class="name">Carrie Bradshaw</p>
+                                    <span class="position">Fashion Designer</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ftco-gallery">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8 heading-section text-center mb-4 ftco-animate">
+                    <h2 class="mb-4">Follow Us On Social Media</h2>
+                    <p>Keep up with our latest products and sales by following us on Instagram, Facebook and Twitter</p>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid px-0">
+            <div class="row no-gutters">
+                <div class="col-md-4 col-lg-2 ftco-animate">
+                    <a href="images/gallery-1.jpg" class="gallery image-popup img d-flex align-items-center" style="background-image: url(images/gallery-1.jpg);">
+                        <div class="icon mb-4 d-flex align-items-center justify-content-center">
+                            <span class="icon-instagram"></span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-2 ftco-animate">
+                    <a href="images/gallery-2.jpg" class="gallery image-popup img d-flex align-items-center" style="background-image: url(images/gallery-2.jpg);">
+                        <div class="icon mb-4 d-flex align-items-center justify-content-center">
+                            <span class="icon-instagram"></span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-2 ftco-animate">
+                    <a href="images/gallery-3.jpg" class="gallery image-popup img d-flex align-items-center" style="background-image: url(images/gallery-3.jpg);">
+                        <div class="icon mb-4 d-flex align-items-center justify-content-center">
+                            <span class="icon-instagram"></span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-2 ftco-animate">
+                    <a href="images/gallery-4.jpg" class="gallery image-popup img d-flex align-items-center" style="background-image: url(images/gallery-4.jpg);">
+                        <div class="icon mb-4 d-flex align-items-center justify-content-center">
+                            <span class="icon-instagram"></span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-2 ftco-animate">
+                    <a href="images/gallery-5.jpg" class="gallery image-popup img d-flex align-items-center" style="background-image: url(images/gallery-5.jpg);">
+                        <div class="icon mb-4 d-flex align-items-center justify-content-center">
+                            <span class="icon-instagram"></span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-4 col-lg-2 ftco-animate">
+                    <a href="images/gallery-6.jpg" class="gallery image-popup img d-flex align-items-center" style="background-image: url(images/gallery-6.jpg);">
+                        <div class="icon mb-4 d-flex align-items-center justify-content-center">
+                            <span class="icon-instagram"></span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- loader -->
+    <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee" /><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00" /></svg></div>
+    @{
+        foreach (var item in Model.cartItems)
+        {
+            <script>
+            document.getElementById(@item.Product.Id).innerHTML = count[@item.Product.Id];
+            </script>
+        }
+    }
+    <script>
+        function AddToCart(id) {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    if (count[id] == null)
+                        count[id] = 1;
+                    else
+                        count[id] = count[id] + 1;
+                    document.getElementById(id).innerHTML = count[id];
+                }
+            };
+            xmlhttp.open("GET", "/Shop/AddToCart?productId=" + id, true);
+            xmlhttp.send();
+        }
+        function RemoveFromCart(id) {
+            if (count[id] != 0) {
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        count[id] = count[id] - 1;
+                        document.getElementById(id).innerHTML = count[id];
+                    }
+                };
+                xmlhttp.open("GET", "/Shop/RemoveFromCart?productId=" + id, true);
+                xmlhttp.send();
+            }
+        }
+        function EmptyCart() {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    for (var id in count) {
+                        count[id] = 0;
+                        document.getElementById(id).innerHTML = 0;
+                    }
+                }
+            };
+            xmlhttp.open("GET", "/Shop/EmptyCart", true);
+            xmlhttp.send();
+        }
+    </script>
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/jquery-migrate-3.0.1.min.js"></script>
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/jquery.easing.1.3.js"></script>
+    <script src="~/js/jquery.waypoints.min.js"></script>
+    <script src="~/js/jquery.stellar.min.js"></script>
+    <script src="~/js/owl.carousel.min.js"></script>
+    <script src="~/js/jquery.magnific-popup.min.js"></script>
+    <script src="~/js/aos.js"></script>
+    <script src="~/js/jquery.animateNumber.min.js"></script>
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <script src="~/js/scrollax.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+    <script src="~/js/google-map.js"></script>
+    <script src="~/js/main.js"></script>
+
+</body>
+</html>

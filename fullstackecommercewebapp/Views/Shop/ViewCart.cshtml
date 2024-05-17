@@ -1,0 +1,273 @@
+﻿@model IEnumerable<fullstackecommercewebapp.Models.CartItem>
+
+
+@{
+    ViewData["Title"] = "Cart";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Minishop - Free Bootstrap 4 Template by Colorlib</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="~/css/animate.css">
+
+    <link rel="stylesheet" href="~/css/owl.carousel.min.css">
+    <link rel="stylesheet" href="~/css/owl.theme.default.min.css">
+    <link rel="stylesheet" href="~/css/magnific-popup.css">
+    <link rel="stylesheet" href="~/css/aos.css">
+
+    <link rel="stylesheet" href="~/css/ionicons.min.css">
+
+    <link rel="stylesheet" href="~/css/bootstrap-datepicker.css">
+    <link rel="stylesheet" href="~/css/jquery.timepicker.css">
+
+
+    <link rel="stylesheet" href="~/css/flaticon.css">
+    <link rel="stylesheet" href="~/css/icomoon.css">
+    <link rel="stylesheet" href="~/css/style.css">
+    <script>
+        function calculateTotal() {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    document.getElementById("total").innerHTML = this.responseText + " SP";
+                    document.getElementById("subtotal").innerHTML = this.responseText + " SP";
+                }
+            };
+            xmlhttp.open("GET", "/Shop/CalculateTotal", true);
+            xmlhttp.send();
+        }
+        function checkEmpty() {
+            total = document.getElementById("total").innerHTML
+            var link = '@Url.ActionLink("Checkout", "Shop")';
+            console.log(total);
+            if (total == 0.0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Empty Cart',
+                    text: 'You Can Not Proceed to Checkout with Empty Cart!'
+                })
+            }
+            else {
+                window.location.href = link;
+            }
+        }
+    </script>
+    <script>
+        count = []
+    </script>
+    @{
+        foreach (var item in Model)
+        {
+            <script>
+                count[@item.Product.Id] = @item.Quantity;
+                console.log(count[@item.Product.Id])
+            </script>
+        }
+    }
+</head>
+<body class="goto-here">
+    <div class="hero-wrap hero-bread" style="background-color: #dbcc8f; height:20px">
+        <div class="container">
+            <div class="row no-gutters slider-text align-items-center justify-content-center">
+                <div class="col-md-9 ftco-animate text-center">
+                    <p class="breadcrumbs"><span class="mr-2"><a href="index.html">Home</a></span> <span>Shop</span></p>
+                    <h1 class="mb-0 bread">Cart</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="ftco-section ftco-cart">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 ftco-animate">
+                    <div class="cart-list">
+                        <table class="table">
+                            <thead class="thead-primary">
+                                <tr class="text-center">
+                                    <th class="align-middle">&nbsp;</th>
+                                    <th class="align-middle">&nbsp;</th>
+                                    <th class="align-middle">Product</th>
+                                    <th class="align-middle">Price</th>
+                                    <th class="align-middle">Quantity</th>
+                                    <th class="align-middle">Total</th>
+                                    <th class="align-middle">&nbsp;</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr id="remove @item.Product.Id" class="text-center">
+                                        <td class="product-remove"><a style="cursor: pointer;" onclick="Remove(@item.Product.Id)"><span class="ion-ios-close"></span></a></td>
+
+                                        <td class="image-prod"><img width="100" src="~/images/@item.Product.Image1" /></td>
+
+                                        <td class="product-name">
+                                            <h3>@item.Product.Name </h3>
+                                            <p> @item.Product.Description</p>
+                                        </td>
+
+                                        <td class="price">@item.Product.Price SP</td>
+
+                                        <td>
+                                            <span title="Add To Cart" style="cursor: pointer;" onclick="RemoveFromCart(@item.Product.Id, @item.Product.Price);" class="quantity-left-minus" data-type="minus" data-field="">
+                                                <i class="ion-ios-remove"></i>
+                                            </span>
+                                            <span style="width:30%" type=" text" id="@item.Product.Id" name="quantity"> </span>
+                                            <span title="Remove from Cart" onclick="AddToCart(@item.Product.Id, @item.Product.Price);" style="cursor: pointer;" class="quantity-right-plus" data-type="plus" data-field="">
+                                                <i class="ion-ios-add"></i>
+                                            </span>
+                                        </td>
+
+
+
+                                        <td id="price @item.Product.Id" class="total"></td>
+                                        <td class="total">
+                                            <a asp-action="Details" asp-controller="Product" asp-route-id="@item.Product.Id" class="view" title="View" data-toggle="tooltip"><i class="material-icons">&#xE417;</i></a>
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-start">
+                <div class="col col-lg-5 col-md-6 mt-5 cart-wrap ftco-animate">
+                    <div class="cart-total mb-3">
+                        <h3>Cart Totals</h3>
+                        <p class="d-flex">
+                            <span>Subtotal</span>
+                            <span id="subtotal"></span>
+                        </p>
+                        <p class="d-flex">
+                            <span>Delivery</span>
+                            <span>0.00 SP</span>
+                        </p>
+                        <p class="d-flex">
+                            <span>Discount</span>
+                            <span>0.00 SP</span>
+                        </p>
+                        <hr>
+                        <p class="d-flex total-price">
+                            <span>Total</span>
+                            <span id="total"> </span>
+                        </p>
+                    </div>
+                    <p class="text-center"><a onclick="checkEmpty()" class="btn btn-primary py-3 px-4">Proceed to Checkout</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- loader -->
+    <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee" /><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00" /></svg></div>
+    @{
+        foreach (var item in Model)
+        {
+            <script>
+                document.getElementById(@item.Product.Id).innerHTML = count[@item.Product.Id];
+                document.getElementById("price " + "@item.Product.Id").innerHTML = count[@item.Product.Id] * @item.Product.Price;
+                calculateTotal();
+            </script>
+        }
+    }
+
+    <script>
+        function AddToCart(id, price) {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    if (count[id] == null)
+                        count[id] = 1;
+                    else
+                        count[id] = count[id] + 1;
+                    document.getElementById(id).innerHTML = count[id];
+                    document.getElementById("price " + id).innerHTML = count[id] * price;
+                    calculateTotal();
+                }
+            };
+            xmlhttp.open("GET", "/Shop/AddToCart?productId=" + id, true);
+            xmlhttp.send();
+        }
+        function RemoveFromCart(id, price) {
+            if (count[id] != 0) {
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        count[id] = count[id] - 1;
+                        document.getElementById(id).innerHTML = count[id];
+                        document.getElementById("price " + id).innerHTML = count[id] * price;
+                        calculateTotal();
+                    }
+                };
+                xmlhttp.open("GET", "/Shop/RemoveFromCart?productId=" + id, true);
+                xmlhttp.send();
+            }
+        }
+        function Remove(id) {
+            if (count[id] != 0) {
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        count[id] = 0;
+                        document.getElementById(id).innerHTML = count[id];
+                        document.getElementById("price " + id).innerHTML = 0;
+                        document.getElementById("remove " + id).style.display = "none";
+                        calculateTotal();
+                    }
+                };
+                xmlhttp.open("GET", "/Shop/Remove?productId=" + id, true);
+                xmlhttp.send();
+            }
+            else {
+                document.getElementById("remove " + id).style.display = "none";
+            }
+        }
+
+        function EmptyCart() {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    for (var id in count) {
+                        count[id] = 0;
+                        document.getElementById(id).innerHTML = 0;
+                        document.getElementById("price " + id).innerHTML = 0;
+                        calculateTotal();
+                    }
+                }
+            };
+            xmlhttp.open("GET", "/Shop/EmptyCart", true);
+            xmlhttp.send();
+        }
+    </script>
+    <script src="~/js/jquery.min.js"></script>
+    <script src="~/js/jquery-migrate-3.0.1.min.js"></script>
+    <script src="~/js/popper.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/jquery.easing.1.3.js"></script>
+    <script src="~/js/jquery.waypoints.min.js"></script>
+    <script src="~/js/jquery.stellar.min.js"></script>
+    <script src="~/js/owl.carousel.min.js"></script>
+    <script src="~/js/jquery.magnific-popup.min.js"></script>
+    <script src="~/js/aos.js"></script>
+    <script src="~/js/jquery.animateNumber.min.js"></script>
+    <script src="~/js/bootstrap-datepicker.js"></script>
+    <script src="~/js/scrollax.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
+    <script src="~/js/google-map.js"></script>
+    <script src="~/js/main.js"></script>
+</body>
+</html>
