@@ -1,8 +1,13 @@
 ﻿using fullstackecommercewebapp.Models;
+using fullstackecommercewebapp.Services;
 using fullstackecommercewebapp.ViewModels;
+using MailKit.Search;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using PagedList;
+using PayStack.Net;
+using System.Text;
 
 namespace fullstackecommercewebapp.Controllers
 {
@@ -10,6 +15,15 @@ namespace fullstackecommercewebapp.Controllers
     {
         public static string msg = "";
         public static int id = 0;
+        private readonly string token;
+        private readonly IConfiguration _configuration;
+        private PayStackApi Paystack { get; set; }
+        public OrderController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+            token = _configuration["Payment:PaystackSK"];
+            Paystack = new PayStackApi(token);
+        }
 
         [Authorize]
         public IActionResult getMyOrders(string sortOrder, string OrderSearchString, string CurrentOrderFilter, int? page)
@@ -116,21 +130,72 @@ namespace fullstackecommercewebapp.Controllers
             return View(orders.ToPagedList(pageNumber, pageSize));
         }
 
+     
+
         [Authorize]
         [HttpPost]
-        public IActionResult Add(CheckoutViewModel cvm)
+        public async Task<IActionResult> Add(CheckoutViewModel cvm)
         {
             if (ModelState.IsValid && HttpContext.Session.GetInt32("CartId") != null)
             {
                 var user = _uow.userRepo.getByUserName(User.Identity.Name);
-                int user_id = user.Id;
+                var callbackUrl = Url.Action(nameof(VerifyPayment), "Order", null, Request.Scheme);
+
+                var paystackService = new PaystackService(new HttpClient(), _configuration);
+
+                // Convert Total to decimal before passing it to InitializeTransactionAsync
+                var totalAmount = Convert.ToDecimal(cvm.total);
+
+                var authorizationUrl = await paystackService.InitializeTransactionAsync(totalAmount, user.Email, callbackUrl);
+
+                // Store necessary information in TempData or session to retrieve after payment verification
+                TempData["CartId"] = HttpContext.Session.GetInt32("CartId");
+                TempData["UserId"] = user.Id;
+                TempData["Address"] = string.IsNullOrEmpty(cvm.Address) ? user.Address : cvm.Address;
+                TempData["Phone"] = string.IsNullOrEmpty(cvm.Phone) ? user.Phone : cvm.Phone;
+
+                // Convert Total to string before storing it in TempData
+                TempData["Total"] = cvm.total.ToString();
+
+                return Redirect(authorizationUrl);
+            }
+            else
+            {
+                ModelState.AddModelError("", "Unable to resolve your Request. Try again, and if the problem persists see your system administrator.");
+                return View("Views/Shop/Checkout", cvm);
+            }
+        }
+
+        [Authorize]
+        public async Task<IActionResult> VerifyPayment(string reference)
+        {
+            if (string.IsNullOrEmpty(reference))
+            {
+                // Handle error (invalid reference)
+                return RedirectToAction("Error", "Home");
+            }
+
+            var paystackService = new PaystackService(new HttpClient(), _configuration);
+            var verificationResponse = await paystackService.VerifyTransaction(reference);
+
+            if (verificationResponse.Status && verificationResponse.Data.Status == "success")
+            {
+                // Transaction was successful
+                var userId = (int)TempData["UserId"];
+                var cartId = (int)TempData["CartId"];
+                var address = TempData["Address"].ToString();
+                var phone = TempData["Phone"].ToString();
+
+                // Parse Total back to double
+                var total = double.Parse(TempData["Total"].ToString());
+
+                var items = _uow.cartItemRepo.ViewCart(cartId);
                 Order order = new Order()
                 {
-                    Status = "In Process",
-                    CustomerId = user_id,
-                    Total = cvm.total
+                    Status = "In process",
+                    CustomerId = userId,
+                    Total = total
                 };
-                var items = _uow.cartItemRepo.ViewCart(user_id);
                 foreach (var item in items)
                 {
                     order.ProductOrder.Add(new ProductOrder()
@@ -140,38 +205,46 @@ namespace fullstackecommercewebapp.Controllers
                         Price = item.Price,
                     });
                 }
-                var Address = user.Address;
-                var Phone = user.Phone;
-                if (!string.IsNullOrEmpty(cvm.Address))
-                {
-                    Address = cvm.Address;
-                }
-                if (!string.IsNullOrEmpty(cvm.Phone))
-                {
-                    Phone = cvm.Phone;
-                }
                 order.Shipping = new Shipping()
                 {
-                    Address = Address,
-                    Phone = Phone,
+                    Address = address,
+                    Phone = phone,
                     Order = order
                 };
+
                 foreach (var item in items)
                 {
                     _uow.cartItemRepo.Delete(item.Id);
                 }
                 _uow.orderRepo.Add(order);
                 _uow.SaveChanges();
-                id = order.Id;
+
+                // Redirect to order confirmation page
+                return RedirectToAction("OrderConfirmation", new { id = order.Id });
             }
             else
             {
-                ModelState.AddModelError("", "Unable to resolve your Request. Try again, and if the problem persists see your system administrator.");
-                return View("Views/Shop/Checkout.cshtml", cvm);
+                // Handle failed transaction
+                return RedirectToAction("PaymentFailed");
             }
-            msg = "added";
-            return RedirectToAction("getMyOrders");
         }
+
+
+       
+        public IActionResult OrderConfirmation(int id)
+        {
+            var order = _uow.orderRepo.getById(id);
+            return View(order);
+        }
+
+        public IActionResult PaymentFailed()
+        {
+            return View();
+        }
+
+
+
+
 
         [Authorize(Roles = "Administrator, Delievery Employee")]
         [HttpGet]

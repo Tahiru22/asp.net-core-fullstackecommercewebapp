@@ -20,6 +20,8 @@ namespace fullstackecommercewebapp.Models
         public string Sku { get; set; }
         public double Price { get; set; }
         public int CategoryId { get; set; }
+
+        [MaxLength(10000)]
         public string? Image1 { get; set; }
         public string Description { get; set; }
 

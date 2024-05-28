@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using fullstackecommercewebapp.Models;
 using fullstackecommercewebapp.Services;
 using fullstackecommercewebapp.ViewModels;
@@ -17,13 +19,15 @@ namespace fullstackecommercewebapp.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IEmailPassResetSender _emailPassResetSender;
+        private readonly Cloudinary _cloudinary;
 
-        public HomeController(ILogger<HomeController> logger, IEmailPassResetSender emailPassResetSender, UserManager<User> userManager, SignInManager<User> signInManager)
+        public HomeController(ILogger<HomeController> logger, IEmailPassResetSender emailPassResetSender, UserManager<User> userManager, SignInManager<User> signInManager, Cloudinary cloudinary)
         {
             _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
             _emailPassResetSender = emailPassResetSender;
+            _cloudinary = cloudinary;
         }
 
         public IActionResult Index()
@@ -141,7 +145,7 @@ namespace fullstackecommercewebapp.Controllers
 
         [Authorize]
         [HttpPost]
-        public IActionResult EditMyAccount(MyAccountViewModel avm)
+        public async Task<IActionResult> EditMyAccount(MyAccountViewModel avm)
         {
             if (ModelState.IsValid)
             {
@@ -151,47 +155,55 @@ namespace fullstackecommercewebapp.Controllers
                 mapper.Map(avm, user);
                 user.UserName = avm.FirstName + "_" + avm.LastName;
                 user.NormalizedUserName = user.UserName.ToUpper();
+
                 int check = _uow.userRepo.checkUserNameUnique(user.UserName);
                 if (check != 0 && check != user.Id)
                 {
                     ModelState.AddModelError("", "There is another registered user with this user name");
                     return View(avm);
                 }
+
                 check = _uow.userRepo.checkPhoneUnique(user.Phone);
                 if (check != 0 && check != user.Id)
                 {
                     ModelState.AddModelError("", "There is another registered user with this phone number");
                     return View(avm);
                 }
+
                 IFormFile file = Request.Form.Files["Image"];
-                if (file != null)
+                if (file != null && file.Length > 0)
                 {
-                    user.Image = Path.GetFileName(file.FileName);
-                    if (file.Length > 0)
+                    var uploadParams = new ImageUploadParams()
                     {
-                        string file_name = Path.GetFileName(file.FileName);
-                        string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images" + file_name);
-                        using (Stream fileStream = new FileStream(path, FileMode.Create))
-                        {
-                            file.CopyTo(fileStream);
-                        }
+                        File = new FileDescription(file.FileName, file.OpenReadStream()),
+                        PublicId = $"users/{Guid.NewGuid()}"
+                        //PublicId = $"users/{Path.GetFileNameWithoutExtension(file.FileName)}_{Guid.NewGuid()}"
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        user.Image = uploadResult.SecureUrl.AbsoluteUri;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("Image", "There was a problem uploading the image");
+                        return View(avm);
                     }
                 }
-                else
-                {
-                    user.Image = "";
-                }
+
                 _uow.userRepo.Edit(user);
                 _uow.SaveChanges();
+                msg = "edited";
+                return RedirectToAction("MyAccount");
             }
             else
             {
                 ViewBag.Id = Request.Form["id"];
                 return View(avm);
             }
-            msg = "edited";
-            return RedirectToAction("MyAccount");
         }
+
 
         [HttpGet]
         public IActionResult TrackMyOrder()

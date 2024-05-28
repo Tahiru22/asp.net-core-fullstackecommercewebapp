@@ -5,7 +5,8 @@
     ViewData["Title"] = "Two-factor authentication (2FA)";
     ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
 }
-
+<br />
+<div class="container">
 <partial name="_StatusMessage" for="StatusMessage" />
 <h3>@ViewData["Title"]</h3>
 @{
@@ -65,7 +66,11 @@
         </div>
     }
 }
+</div>
 
+<br />
+<br />
+<br />
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

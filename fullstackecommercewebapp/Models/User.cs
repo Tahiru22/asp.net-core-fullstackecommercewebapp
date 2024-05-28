@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace fullstackecommercewebapp.Models
 {
@@ -24,6 +25,8 @@ namespace fullstackecommercewebapp.Models
         public string Address { get; set; }
         public string Gendre { get; set; }
         public string Phone { get; set; }
+
+        [MaxLength(10000)]
         public string? Image { get; set; }
 
         public virtual ICollection<Order>? Order { get; set; }

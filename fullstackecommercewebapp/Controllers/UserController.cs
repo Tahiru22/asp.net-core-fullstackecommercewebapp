@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using CloudinaryDotNet.Actions;
+using CloudinaryDotNet;
 using fullstackecommercewebapp.Models;
 using fullstackecommercewebapp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -13,10 +15,12 @@ namespace fullstackecommercewebapp.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<AspNetRoles> _roleManager;
-        public UserController(UserManager<User> userManger, RoleManager<AspNetRoles> roleManager) : base()
+        private readonly Cloudinary _cloudinary;
+        public UserController(UserManager<User> userManger, Cloudinary cloudinary, RoleManager<AspNetRoles> roleManager) : base()
         {
             _userManager = userManger;
             _roleManager = roleManager;
+            _cloudinary = cloudinary;
         }
         public static string msg = "";
         public async Task<IActionResult> Index(string sortOrder, string CurrentNameFilter, string CurrentAddressFilter
@@ -85,72 +89,99 @@ namespace fullstackecommercewebapp.Controllers
                 {
                     Console.WriteLine(error.ErrorMessage);
                 }
-                // other code
             }
-
 
             if (ModelState.IsValid)
             {
                 var config = new MapperConfiguration(cfg => cfg.CreateMap<UserViewModel, User>());
                 var mapper = new Mapper(config);
-               User a = mapper.Map<User>(uvm);
+                User a = mapper.Map<User>(uvm);
                 a.UserName = a.FirstName + "_" + a.LastName;
+
                 if (_uow.userRepo.checkEmailUnique(a.Email) != 0)
                 {
                     ModelState.AddModelError("Email", "There is another registered user with this Email");
                     uvm.roles = roles;
-                    var role = uvm.roles.Where(r => r.NormalizedName == "Normal User").FirstOrDefault();
+                    var role = uvm.roles.FirstOrDefault(r => r.NormalizedName == "Normal User");
                     uvm.roles.Remove(role);
-                    return await Task.Run(() => View(uvm));
+                    return View(uvm);
                 }
+
                 if (_uow.userRepo.checkUserNameUnique(a.UserName) != 0)
                 {
                     ModelState.AddModelError("", "There is another registered user with this user name");
                     uvm.roles = roles;
-                    var role = uvm.roles.Where(r => r.NormalizedName == "Normal User").FirstOrDefault();
+                    var role = uvm.roles.FirstOrDefault(r => r.NormalizedName == "Normal User");
                     uvm.roles.Remove(role);
-                    return await Task.Run(() => View(uvm));
+                    return View(uvm);
                 }
+
                 if (_uow.userRepo.checkPhoneUnique(a.Phone) != 0)
                 {
                     ModelState.AddModelError("", "There is another registered user with this phone number");
                     uvm.roles = roles;
-                    var role = uvm.roles.Where(r => r.NormalizedName == "Normal User").FirstOrDefault();
+                    var role = uvm.roles.FirstOrDefault(r => r.NormalizedName == "Normal User");
                     uvm.roles.Remove(role);
-                    return await Task.Run(() => View(uvm));
+                    return View(uvm);
                 }
+
                 IFormFile file = Request.Form.Files["Image"];
-                if (file != null)
+                if (file != null && file.Length > 0)
                 {
-                    a.Image = Path.GetFileName(file.FileName);
-                    if (file.Length > 0)
+                    var uploadParams = new ImageUploadParams()
                     {
-                        string file_name = Path.GetFileName(file.FileName);
-                        string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images" + file_name);
-                        using (Stream fileStream = new FileStream(path, FileMode.Create))
-                        {
-                            file.CopyTo(fileStream);
-                        }
+                        File = new FileDescription(file.FileName, file.OpenReadStream()),
+                        PublicId = $"users/{Guid.NewGuid()}"
+                        //PublicId = $"users/{Path.GetFileNameWithoutExtension(file.FileName)}_{Guid.NewGuid()}"
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        a.Image = uploadResult.SecureUrl.AbsoluteUri;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("Image", "There was a problem uploading the image");
+                        uvm.roles = roles;
+                        var role = uvm.roles.FirstOrDefault(r => r.NormalizedName == "Normal User");
+                        uvm.roles.Remove(role);
+                        return View(uvm);
                     }
                 }
-                await _userManager.CreateAsync(a, uvm.Password);
-                foreach (var item in uvm.rolesIds)
+
+                var result = await _userManager.CreateAsync(a, uvm.Password);
+                if (result.Succeeded)
                 {
-                    await _userManager.AddToRoleAsync(a, roles.Find(r => r.Id == item).NormalizedName);
+                    foreach (var item in uvm.rolesIds)
+                    {
+                        await _userManager.AddToRoleAsync(a, roles.Find(r => r.Id == item).NormalizedName);
+                    }
+                    await _userManager.AddToRoleAsync(a, "Normal User");
+                    _uow.SaveChanges();
                 }
-                await _userManager.AddToRoleAsync(a, "Normal User");
-                _uow.SaveChanges();
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    uvm.roles = roles;
+                    var role = uvm.roles.FirstOrDefault(r => r.NormalizedName == "Normal User");
+                    uvm.roles.Remove(role);
+                    return View(uvm);
+                }
+
+                return RedirectToAction("Index");
             }
             else
             {
                 ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
                 uvm.roles = roles;
-                var role = uvm.roles.Where(r => r.NormalizedName == "Normal User").FirstOrDefault();
+                var role = uvm.roles.FirstOrDefault(r => r.NormalizedName == "Normal User");
                 uvm.roles.Remove(role);
-                return await Task.Run(() => View(uvm));
+                return View(uvm);
             }
-            msg = "added";
-            return await Task.Run(() => RedirectToAction("Index"));
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -184,54 +215,66 @@ namespace fullstackecommercewebapp.Controllers
                 var mapper = new Mapper(config);
                 mapper.Map(uvm, user);
                 user.UserName = user.FirstName + "_" + user.LastName;
+
                 int check = _uow.userRepo.checkEmailUnique(user.Email);
                 if (check != 0 && check != user.Id)
                 {
                     ModelState.AddModelError("Email", "There is another registered user with this Email");
                     uvm.roles = roles;
-                    var role = uvm.roles.Where(r => r.NormalizedName == "Normal User").FirstOrDefault();
+                    var role = uvm.roles.FirstOrDefault(r => r.NormalizedName == "Normal User");
                     uvm.roles.Remove(role);
                     ViewBag.Id = Request.Form["id"];
-                    return await Task.Run(() => View(uvm));
+                    return View(uvm);
                 }
+
                 check = _uow.userRepo.checkUserNameUnique(user.UserName);
                 if (check != 0 && check != user.Id)
                 {
                     ModelState.AddModelError("", "There is another registered user with this user name");
                     uvm.roles = roles;
-                    var role = uvm.roles.Where(r => r.NormalizedName == "Normal User").FirstOrDefault();
+                    var role = uvm.roles.FirstOrDefault(r => r.NormalizedName == "Normal User");
                     uvm.roles.Remove(role);
                     ViewBag.Id = Request.Form["id"];
-                    return await Task.Run(() => View(uvm));
+                    return View(uvm);
                 }
+
                 check = _uow.userRepo.checkPhoneUnique(user.Phone);
                 if (check != 0 && check != user.Id)
                 {
                     ModelState.AddModelError("", "There is another registered user with this phone number");
                     uvm.roles = roles;
-                    var role = uvm.roles.Where(r => r.NormalizedName == "Normal User").FirstOrDefault();
+                    var role = uvm.roles.FirstOrDefault(r => r.NormalizedName == "Normal User");
                     uvm.roles.Remove(role);
                     ViewBag.Id = Request.Form["id"];
-                    return await Task.Run(() => View(uvm));
+                    return View(uvm);
                 }
+
                 IFormFile file = Request.Form.Files["Image"];
-                if (file != null)
+                if (file != null && file.Length > 0)
                 {
-                    user.Image = Path.GetFileName(file.FileName);
-                    if (file.Length > 0)
+                    var uploadParams = new ImageUploadParams()
                     {
-                        string file_name = Path.GetFileName(file.FileName);
-                        string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images" + file_name);
-                        using (Stream fileStream = new FileStream(path, FileMode.Create))
-                        {
-                            file.CopyTo(fileStream);
-                        }
+                        File = new FileDescription(file.FileName, file.OpenReadStream()),
+                        PublicId = $"users/{Guid.NewGuid()}"
+                        //PublicId = $"users/{Path.GetFileNameWithoutExtension(file.FileName)}_{Guid.NewGuid()}"
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        user.Image = uploadResult.SecureUrl.AbsoluteUri;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("Image", "There was a problem uploading the image");
+                        uvm.roles = roles;
+                        var role = uvm.roles.FirstOrDefault(r => r.NormalizedName == "Normal User");
+                        uvm.roles.Remove(role);
+                        ViewBag.Id = Request.Form["id"];
+                        return View(uvm);
                     }
                 }
-                else
-                {
-                    user.Image = "";
-                }
+
                 foreach (var item in roles)
                 {
                     if (await _userManager.IsInRoleAsync(user, item.NormalizedName))
@@ -239,26 +282,28 @@ namespace fullstackecommercewebapp.Controllers
                         await _userManager.RemoveFromRoleAsync(user, item.NormalizedName);
                     }
                 }
+
                 foreach (var item in uvm.rolesIds)
                 {
                     await _userManager.AddToRoleAsync(user, roles.Find(r => r.Id == item).NormalizedName);
                 }
+
                 await _userManager.AddToRoleAsync(user, "Normal User");
                 await _userManager.UpdateAsync(user);
                 _uow.SaveChanges();
-
             }
             else
             {
                 ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
                 uvm.roles = _roleManager.Roles.ToList();
-                var role = uvm.roles.Where(r => r.NormalizedName == "Normal User").FirstOrDefault();
+                var role = uvm.roles.FirstOrDefault(r => r.NormalizedName == "Normal User");
                 uvm.roles.Remove(role);
                 ViewBag.Id = Request.Form["id"];
-                return await Task.Run(() => View(uvm));
+                return View(uvm);
             }
+
             msg = "edited";
-            return await Task.Run(() => RedirectToAction("Index"));
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Delete(int id)

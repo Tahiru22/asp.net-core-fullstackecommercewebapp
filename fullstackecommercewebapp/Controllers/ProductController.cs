@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 using fullstackecommercewebapp.Models;
 using fullstackecommercewebapp.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -12,9 +14,11 @@ namespace fullstackecommercewebapp.Controllers
     {
         public static string msg = "";
         private IWebHostEnvironment _hostingEnvironment;
-        public ProductController(IWebHostEnvironment hostingEnvironment)
+        private readonly Cloudinary _cloudinary;
+        public ProductController(IWebHostEnvironment hostingEnvironment, Cloudinary cloudinary)
         {
             _hostingEnvironment = hostingEnvironment;
+            _cloudinary = cloudinary;
         }
         public IActionResult Index(string sortOrder, string CurrentCategoryFilter, string CurrentCompanyFilter,
              string CurrentProductFilter, string CategorySearchString,
@@ -80,8 +84,64 @@ namespace fullstackecommercewebapp.Controllers
             return View(pvm);
         }
 
+        //[HttpPost]
+        //public IActionResult AddAttributes(ProductViewModel pvm)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        if (pvm.CategoryId == 0)
+        //        {
+        //            ModelState.AddModelError("CategoryId", "You must select a category");
+        //            pvm.Categories = _uow.categoryRepo.getAll();
+        //            return View("Add", pvm);
+        //        }
+        //        if (pvm.Price <= 0)
+        //        {
+        //            ModelState.AddModelError("Price", "Price can not be below or equal to zero");
+        //            pvm.Categories = _uow.categoryRepo.getAll();
+        //            return View("Add", pvm);
+        //        }
+        //        IFormFile file = Request.Form.Files["Image1"];
+        //        if (file == null)
+        //        {
+        //            ModelState.AddModelError("Image1", "You must upload an image for the product");
+        //            pvm.Categories = _uow.categoryRepo.getAll();
+        //            return View("Add", pvm);
+        //        }
+        //        if (file.Length > 0)
+        //        {
+        //            string file_name = Path.GetFileName(file.FileName);
+        //            string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images" + file_name);
+        //            using (Stream fileStream = new FileStream(path, FileMode.Create))
+        //            {
+        //                file.CopyTo(fileStream);
+        //            }
+        //        }
+        //        pvm.CategoryAttributes = _uow.categoryRepo.getCategoryAttributes(pvm.CategoryId);
+        //        pvm.NonCategoryAttributes = _uow.categoryRepo.getNonCategoryAttributes(pvm.CategoryId);
+        //        pvm.Image1 = Path.GetFileName(file.FileName);
+
+        //        foreach (var modelState in ModelState.Values)
+        //        {
+        //            foreach (var error in modelState.Errors)
+        //            {
+        //                // Log or handle the error as needed
+        //                Console.WriteLine(error.ErrorMessage);
+        //            }
+        //        }
+
+        //        return View(pvm);
+        //    }
+        //    else
+        //    {
+        //        pvm.Categories = _uow.categoryRepo.getAll();
+        //        return View("Add", pvm);
+        //    }
+
+        //}
+
         [HttpPost]
-        public IActionResult AddAttributes(ProductViewModel pvm)
+        public async Task<IActionResult> AddAttributes(ProductViewModel pvm)
         {
             if (ModelState.IsValid)
             {
@@ -93,10 +153,11 @@ namespace fullstackecommercewebapp.Controllers
                 }
                 if (pvm.Price <= 0)
                 {
-                    ModelState.AddModelError("Price", "Price can not be below or equal to zero");
+                    ModelState.AddModelError("Price", "Price cannot be below or equal to zero");
                     pvm.Categories = _uow.categoryRepo.getAll();
                     return View("Add", pvm);
                 }
+
                 IFormFile file = Request.Form.Files["Image1"];
                 if (file == null)
                 {
@@ -104,18 +165,35 @@ namespace fullstackecommercewebapp.Controllers
                     pvm.Categories = _uow.categoryRepo.getAll();
                     return View("Add", pvm);
                 }
+
                 if (file.Length > 0)
                 {
-                    string file_name = Path.GetFileName(file.FileName);
-                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images" + file_name);
-                    using (Stream fileStream = new FileStream(path, FileMode.Create))
+                    // Generate a short, unique identifier for the public ID
+                    var publicId = $"products/{Guid.NewGuid().ToString().Substring(0, 8)}";
+                    // Upload to Cloudinary
+                    var uploadParams = new ImageUploadParams()
                     {
-                        file.CopyTo(fileStream);
+                        File = new FileDescription(file.FileName, file.OpenReadStream()),
+                        PublicId = publicId
+
+                        //PublicId = $"products/{Path.GetFileNameWithoutExtension(file.FileName)}_{Guid.NewGuid()}"
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        pvm.Image1 = uploadResult.SecureUrl.AbsoluteUri;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("Image1", "There was a problem uploading the image");
+                        pvm.Categories = _uow.categoryRepo.getAll();
+                        return View("Add", pvm);
                     }
                 }
+
                 pvm.CategoryAttributes = _uow.categoryRepo.getCategoryAttributes(pvm.CategoryId);
                 pvm.NonCategoryAttributes = _uow.categoryRepo.getNonCategoryAttributes(pvm.CategoryId);
-                pvm.Image1 = Path.GetFileName(file.FileName);
 
                 foreach (var modelState in ModelState.Values)
                 {
@@ -133,7 +211,6 @@ namespace fullstackecommercewebapp.Controllers
                 pvm.Categories = _uow.categoryRepo.getAll();
                 return View("Add", pvm);
             }
-
         }
 
         [HttpPost]
@@ -239,32 +316,45 @@ namespace fullstackecommercewebapp.Controllers
         }
 
         [HttpPost]
-        public IActionResult EditAttributes(ProductViewModel pvm)
+        public async Task<IActionResult> EditAttributes(ProductViewModel pvm)
         {
-
             if (ModelState.IsValid)
             {
-                int PreviousCategoryId = Convert.ToInt32(Request.Form["previousCategoryId"]);
+                int previousCategoryId = Convert.ToInt32(Request.Form["previousCategoryId"]);
                 ViewBag.id = Convert.ToInt32(Request.Form["id"]);
+
                 IFormFile file = Request.Form.Files["Image1"];
                 if (file != null)
                 {
-                    pvm.Image1 = Path.GetFileName(file.FileName);
                     if (file.Length > 0)
                     {
-                        string file_name = Path.GetFileName(file.FileName);
-                        string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images" + file_name);
-                        using (Stream fileStream = new FileStream(path, FileMode.Create))
+                        // Upload to Cloudinary
+                        var uploadParams = new ImageUploadParams()
                         {
-                            file.CopyTo(fileStream);
+                            File = new FileDescription(file.FileName, file.OpenReadStream()),
+                            PublicId = $"products/{Guid.NewGuid()}"
+                        };
+
+                        var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                        if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                        {
+                            pvm.Image1 = uploadResult.SecureUrl.AbsoluteUri;
+                        }
+                        else
+                        {
+                            ModelState.AddModelError("Image1", "There was a problem uploading the image");
+                            pvm.Categories = _uow.categoryRepo.getAll();
+                            return View("Add", pvm);
                         }
                     }
                 }
                 else
                 {
-                    pvm.Image1 = "";
+                    // Retain the existing image if no new image is uploaded
+                    pvm.Image1 = _uow.productRepo.getById(Convert.ToInt32(Request.Form["id"])).Image1;
                 }
-                if (PreviousCategoryId != pvm.CategoryId)
+
+                if (previousCategoryId != pvm.CategoryId)
                 {
                     pvm.CategoryAttributes = _uow.categoryRepo.getCategoryAttributes(pvm.CategoryId);
                     pvm.NonCategoryAttributes = _uow.categoryRepo.getNonCategoryAttributes(pvm.CategoryId);

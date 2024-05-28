@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using fullstackecommercewebapp.Repositories.Repos;
 using Microsoft.DotNet.Scaffolding.Shared.ProjectModel;
+using CloudinaryDotNet;
 
 namespace fullstackecommercewebapp.Areas.Identity.Pages.Account
 {
@@ -31,16 +32,19 @@ namespace fullstackecommercewebapp.Areas.Identity.Pages.Account
         private readonly UserManager<User> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly Cloudinary _cloudinary;
         private readonly RoleManager<AspNetRoles> _roleManager;
         public RegisterModel(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
+            Cloudinary cloudinary,
             RoleManager<AspNetRoles> roleManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _cloudinary = cloudinary;
             _logger = logger;
             _emailSender = emailSender;
             _roleManager = roleManager;
@@ -123,8 +127,25 @@ namespace fullstackecommercewebapp.Areas.Identity.Pages.Account
                 string img = "";
                 if (file != null)
                 {
-                    img = Path.GetFileName(file.FileName);
+                    // Upload to Cloudinary
+                    var uploadParams = new CloudinaryDotNet.Actions.ImageUploadParams()
+                    {
+                        File = new CloudinaryDotNet.FileDescription(file.FileName, file.OpenReadStream()),
+                        PublicId = $"users/{Guid.NewGuid()}"
+                    };
+
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
+                    {
+                        img = uploadResult.SecureUrl.AbsoluteUri;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("Image1", "There was a problem uploading the image");
+                        return Page();
+                    }
                 }
+
                 var user = new User
                 {
                     Email = Input.Email,
@@ -139,18 +160,6 @@ namespace fullstackecommercewebapp.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
-                    if (file != null)
-                    {
-                        if (file.Length > 0)
-                        {
-                            string file_name = Path.GetFileName(file.FileName);
-                            string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images" + file_name);
-                            using (Stream fileStream = new FileStream(path, FileMode.Create))
-                            {
-                                file.CopyTo(fileStream);
-                            }
-                        }
-                    }
                     CartItemRepo cartItemRepo = new CartItemRepo(new Data.AppDbContext());
                     int cartId = -1;
                     if (HttpContext.Session.GetInt32("CartId") != null)
@@ -188,5 +197,6 @@ namespace fullstackecommercewebapp.Areas.Identity.Pages.Account
             // If we got this far, something failed, redisplay form
             return Page();
         }
+
     }
 }

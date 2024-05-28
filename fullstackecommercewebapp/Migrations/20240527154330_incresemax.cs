@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace fullstackecommercewebapp.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class incresemax : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -39,7 +39,7 @@ namespace fullstackecommercewebapp.Migrations
                     Address = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Gendre = table.Column<string>(type: "nchar(1)", fixedLength: true, maxLength: 1, nullable: false),
                     Phone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    image = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    image = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
@@ -321,7 +321,7 @@ namespace fullstackecommercewebapp.Migrations
                     SKU = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
-                    Image1 = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Image1 = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CompanyName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime", nullable: false),

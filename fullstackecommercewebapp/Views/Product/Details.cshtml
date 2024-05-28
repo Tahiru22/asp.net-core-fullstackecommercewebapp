@@ -48,7 +48,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-6 mb-5 ftco-animate" style="height:500px">
-                    <a href="~/images/@Model.Image1" class="image-popup prod-img-bg"><img style="height:500px" src="~/images/@Model.Image1" class="img-fluid" alt="Colorlib Template"></a>
+                    <a href="@Model.Image1" class="image-popup prod-img-bg"><img style="height:500px" src="@Model.Image1" class="img-fluid" alt="Colorlib Template"></a>
                 </div>
                 <div class="col-lg-6 product-details pl-md-5 ftco-animate d-flex flex-column" style="height:500px">
                     <h3>@Model.Name</h3>
@@ -60,7 +60,7 @@
                             </p>
                         }
                     }
-                    <p class="price"><span>@Model.Price SP</span></p>
+                    <p class="price"><span>@Model.Price GHS</span></p>
                     @{
                         if (Context.User.IsInRole("Administrator") || Context.User.IsInRole("Products Manager"))
                         {

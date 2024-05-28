@@ -39,8 +39,8 @@
             var xmlhttp = new XMLHttpRequest();
             xmlhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
-                    document.getElementById("total").innerHTML = this.responseText + " SP";
-                    document.getElementById("subtotal").innerHTML = this.responseText + " SP";
+                    document.getElementById("total").innerHTML = this.responseText + " GHS";
+                    document.getElementById("subtotal").innerHTML = this.responseText + " GHS";
                 }
             };
             xmlhttp.open("GET", "/Shop/CalculateTotal", true);
@@ -110,14 +110,14 @@
                                     <tr id="remove @item.Product.Id" class="text-center">
                                         <td class="product-remove"><a style="cursor: pointer;" onclick="Remove(@item.Product.Id)"><span class="ion-ios-close"></span></a></td>
 
-                                        <td class="image-prod"><img width="100" src="~/images/@item.Product.Image1" /></td>
+                                        <td class="image-prod"><img width="100" src="@item.Product.Image1" /></td>
 
                                         <td class="product-name">
                                             <h3>@item.Product.Name </h3>
                                             <p> @item.Product.Description</p>
                                         </td>
 
-                                        <td class="price">@item.Product.Price SP</td>
+                                        <td class="price">@item.Product.Price GHS</td>
 
                                         <td>
                                             <span title="Add To Cart" style="cursor: pointer;" onclick="RemoveFromCart(@item.Product.Id, @item.Product.Price);" class="quantity-left-minus" data-type="minus" data-field="">
@@ -153,11 +153,11 @@
                         </p>
                         <p class="d-flex">
                             <span>Delivery</span>
-                            <span>0.00 SP</span>
+                            <span>0.00 GHS</span>
                         </p>
                         <p class="d-flex">
                             <span>Discount</span>
-                            <span>0.00 SP</span>
+                            <span>0.00 GHS</span>
                         </p>
                         <hr>
                         <p class="d-flex total-price">

@@ -224,13 +224,13 @@
                                                 @Html.DisplayFor(modelItem => item.Category.Name)
                                             </td>
                                             <td class="price">
-                                                @Html.DisplayFor(modelItem => item.Price) SP
+                                                @Html.DisplayFor(modelItem => item.Price) GHS
                                             </td>
                                             <td>
                                                 @Html.DisplayFor(model => item.CompanyName) Company
                                             </td>
                                             <td class="image-prod">
-                                                <img width="100" src="~/images/@Html.DisplayFor(modelItem => item.Image1)" />
+                                                <img width="100" src="@Html.DisplayFor(modelItem => item.Image1)" />
                                             </td>
                                             <td>
                                                 @Html.DisplayFor(modelItem => item.Description)

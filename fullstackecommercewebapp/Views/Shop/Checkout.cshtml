@@ -43,7 +43,7 @@
                     <h1 class="mb-0 bread">Checkout</h1>
                     <br />
                     <h5> Enter your Order Cerdentials below.</h5>
-                    <h5> If you want to use the same Cerdentials Registerd in you Personal Account, you Can Leave these Fields Empty</h5>
+                @*    <h5> If you want to use the same Cerdentials Registerd in you Personal Account, you Can Leave these Fields Empty</h5>*@
                     <div asp-validation-summary="All" class="text-danger"> </div>
                 </div>
             </div>
@@ -64,6 +64,11 @@
                                     <input asp-for="Address" class="form-control" placeholder="House number and street name">
                                     <span asp-validation-for="Address" class="text-danger"> </span>
                                 </div>
+                                 <div class="form-group">
+                                    <label for="PaystackPaymentReference">@Html.DisplayNameFor(model => model.PaystackPaymentReference)</label>
+                                    <input asp-for="PaystackPaymentReference" class="form-control" placeholder="Reference">
+                                    <span asp-validation-for="PaystackPaymentReference" class="text-danger"> </span>
+                                </div>
                             </div>
                             <input type="hidden" value="@Model.total" name="total" />
                             <div class="w-100"></div>
@@ -83,20 +88,20 @@
                                     <h3 class="billing-heading mb-4">Cart Total</h3>
                                     <p class="d-flex">
                                         <span>Subtotal</span>
-                                        <span>@Model.total SP</span>
+                                        <span>@Model.total GHS</span>
                                     </p>
                                     <p class="d-flex">
                                         <span>Delivery</span>
-                                        <span>0.00 SP</span>
+                                        <span>0.00 GHS</span>
                                     </p>
                                     <p class="d-flex">
                                         <span>Discount</span>
-                                        <span>0.00 SP</span>
+                                        <span>0.00 GHS</span>
                                     </p>
                                     <hr>
                                     <p class="d-flex total-price">
                                         <span>Total</span>
-                                        <span>@Model.total SP</span>
+                                        <span>@Model.total GHS</span>
                                     </p>
                                 </div>
                             </div>

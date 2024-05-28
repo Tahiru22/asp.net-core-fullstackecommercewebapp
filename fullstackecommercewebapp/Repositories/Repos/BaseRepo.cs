@@ -16,7 +16,7 @@ namespace fullstackecommercewebapp.Repositories.Repos
 
         public IEnumerable<T> getAll()
         {
-            return _dbSet.ToList();
+             return _dbSet.ToList();
         }
         public T getById(int id)
         {

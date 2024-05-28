@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
     <PackageReference Include="MailKit" Version="4.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.19" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.18" />
@@ -24,6 +25,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.12" />
     <PackageReference Include="PagedList.Mvc" Version="4.5.0" />
 	 <PackageReference Include="MimeKit" Version="4.5.0" />
+	 <PackageReference Include="Paystack.Net" Version="1.1.1" />
   </ItemGroup>
 
 </Project>

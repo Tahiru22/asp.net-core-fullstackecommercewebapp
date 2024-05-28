@@ -10,13 +10,20 @@ namespace fullstackecommercewebapp.ViewModels
         }
 
         [Display(Name = "Address")]
+        [Required]
         public string Address { get; set; }
 
-        [RegularExpression(@"(^233[0-9]{8}$)", ErrorMessage = "Phone Number must be a Ghanaian Mobile Phone Number (10 digits and the first three are 233)")]
+        //[RegularExpression(@"(^\+[1-9]\d{1,14}$)", ErrorMessage = "Phone Number must be in E164 format")]
         [Display(Name = "Phone Number")]
+        [Required]
         public string Phone { get; set; }
 
+        [Required]
         public double total { get; set; }
+
+        [Display(Name = "Reference")]
+        [Required]
+        public string PaystackPaymentReference { get; set; }
 
     }
 }

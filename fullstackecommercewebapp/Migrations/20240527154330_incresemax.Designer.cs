@@ -12,8 +12,8 @@ using fullstackecommercewebapp.Data;
 namespace fullstackecommercewebapp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240517094925_imagenull")]
-    partial class imagenull
+    [Migration("20240527154330_incresemax")]
+    partial class incresemax
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
